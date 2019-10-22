@@ -3,7 +3,6 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-
 function GetESDInterface() {
 	const platform = `${process.platform}`;
 	const platformArch = `${process.arch}`;
@@ -11,21 +10,22 @@ function GetESDInterface() {
 
 	console.log("platform");
 
-	var ESdebugExtensionPath = vscode.extensions.getExtension("adobe.extendscript-debug").extensionPath;
+	const extensionPath = vscode.extensions.getExtension("adobe.extendscript-debug");
+	var ESdebugExtensionPath = extensionPath!.extensionPath;
 
 	console.log("extension path " + ESdebugExtensionPath);
 
 	// require doesn't work
 
-	if (platform == "darwin") {
+	if (platform === "darwin") {
 		esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/mac/esdcorelibinterface.node");
-	} else if (platform == "win32") {
-		if (platformArch == "x64" || platformArch == "arm64") {
-			esdinterface = require("@esdebug/esdebugger-core/win/x64/esdcorelibinterface.node");
+	} else if (platform === "win32") {
+		if (platformArch === "x64" || platformArch === "arm64") {
+			esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/win/x64/esdcorelibinterface.node");
 		} else {
-			esdinterface = require("@esdebug/esdebugger-core/win/win32/esdcorelibinterface.node");
+			esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/win/win32/esdcorelibinterface.node");
 		}
-
+		
 		if (esdinterface === undefined) {
 			console.log("Platform not supported: " + platform);
 			process.exit(1);
@@ -40,7 +40,7 @@ function GetESDInterface() {
 function fetchLastErrorAndExit() {
     var errorInfo = undefined;
     var error = GetESDInterface().esdGetLastError();
-    if(error.status != 0){
+    if(error.status !== 0){
         if(error.data) {
             errorInfo = error.data;
         }
@@ -68,12 +68,12 @@ function destroy() {
     GetESDInterface().esdDestroy();
 }
 
-function exportContentToJSX(scriptSource) {
+function exportContentToJSX(scriptSource: any) {
 
 	var compiledSource = "";
 
 	var apiData = GetESDInterface().esdCompileToJSXBin(scriptSource, "", "");
-	if(apiData.status != 0){
+	if(apiData.status !== 0){
 			console.log("Unable to proceed. Error Code: " + apiData.status);
 			fetchLastErrorAndExit();
 	} else {
@@ -132,7 +132,6 @@ export function activate(context: vscode.ExtensionContext) {
 			console.log("Replaced\n\n");
 
 			destroy();
-			process.exit(0);
 
 		}
 
