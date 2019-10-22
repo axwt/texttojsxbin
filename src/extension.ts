@@ -7,13 +7,8 @@ function GetESDInterface() {
 	const platform = `${process.platform}`;
 	const platformArch = `${process.arch}`;
 	var esdinterface = undefined;
-
-	console.log("platform");
-
 	const extensionPath = vscode.extensions.getExtension("adobe.extendscript-debug");
 	var ESdebugExtensionPath = extensionPath!.extensionPath;
-
-	console.log("extension path " + ESdebugExtensionPath);
 
 	// require doesn't work
 
@@ -30,10 +25,9 @@ function GetESDInterface() {
 			console.log("Platform not supported: " + platform);
 			process.exit(1);
 		}
-		return esdinterface;
 	}
-
-	// console.log("esdinterface " +esdinterface);
+	
+	return esdinterface;
 
 }
 
@@ -52,17 +46,13 @@ function fetchLastErrorAndExit() {
 }
 
 function init() {
-
 		var initData = GetESDInterface().esdInit();
-		
-		console.log("init ok");
 
     if(initData.status !== 0) {
         console.log("Unable to proceed. Error Code: " + initData.status);
         fetchLastErrorAndExit();
 		}
 		
-		console.log("init ok");
 }
 function destroy() {
     GetESDInterface().esdDestroy();
