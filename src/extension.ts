@@ -9,10 +9,16 @@ function GetESDInterface() {
 	const platformArch = `${process.arch}`;
 	var esdinterface = undefined;
 
+	console.log("platform");
+
+	var ESdebugExtensionPath = vscode.extensions.getExtension("adobe.extendscript-debug").extensionPath;
+
+	console.log("extension path " + ESdebugExtensionPath);
+
 	// require doesn't work
 
 	if (platform == "darwin") {
-		esdinterface = require("@esdebug/esdebugger-core/mac/esdcorelibinterface.node");
+		esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/mac/esdcorelibinterface.node");
 	} else if (platform == "win32") {
 		if (platformArch == "x64" || platformArch == "arm64") {
 			esdinterface = require("@esdebug/esdebugger-core/win/x64/esdcorelibinterface.node");
@@ -26,6 +32,9 @@ function GetESDInterface() {
 		}
 		return esdinterface;
 	}
+
+	// console.log("esdinterface " +esdinterface);
+
 }
 
 function fetchLastErrorAndExit() {
@@ -44,12 +53,16 @@ function fetchLastErrorAndExit() {
 
 function init() {
 
-    var initData = GetESDInterface().esdInit();
+		var initData = GetESDInterface().esdInit();
+		
+		console.log("init ok");
 
     if(initData.status !== 0) {
         console.log("Unable to proceed. Error Code: " + initData.status);
         fetchLastErrorAndExit();
-    }
+		}
+		
+		console.log("init ok");
 }
 function destroy() {
     GetESDInterface().esdDestroy();
