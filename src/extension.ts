@@ -97,18 +97,28 @@ export function activate(context: vscode.ExtensionContext) {
 			let selection = editor.selection;
 
 
-			// Display a message box to the user
-			vscode.window.showInformationMessage(selection.toString());
-
+			
 			// Get the word within the selection
 			let textToEncode = document.getText(selection);
 			let encodedText = "";
-
+			let textToReplace = "";
+			
 			init();
-
+			
 			try {
-					encodedText = exportContentToJSX(textToEncode);
-					console.log(encodedText + "\n\n");
+				encodedText = exportContentToJSX(textToEncode);
+
+				if (encodedText === "") {
+					// Display a message box to the user
+					vscode.window.showInformationMessage("There was an issue encoding the selection. Please, check your code.");
+					destroy();
+					process.exit(1);
+					return false;
+				}
+
+				textToReplace = textToEncode.replace(/^/gm,"// ") + "\n\neval(\"" + encodedText + "\");";
+				// Display a message box to the user
+				// vscode.window.showInformationMessage("Converted to JSXBIN");
 			} catch(error) {
 				console.log(error);
 				destroy();
@@ -116,10 +126,10 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			editor.edit(editBuilder => {
-				editBuilder.replace(selection, encodedText);
+				editBuilder.replace(selection, textToReplace);
 			});
 
-			console.log("Replaced\n\n");
+			// console.log("Replaced\n\n");
 
 			destroy();
 
