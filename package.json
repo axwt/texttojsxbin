@@ -2,14 +2,21 @@
 	"name": "texttojsxbin",
 	"displayName": "TextToJSXBIN",
 	"description": "Encode selected text to JSXBIN and put inside eval",
-	"categories": ["Formatters", "Other", "Extension Packs"],
-	"keywords" : [
-		"ExtendScript", "JSXBIN", "JSX", "After Effects"
+	"categories": [
+		"Formatters",
+		"Other",
+		"Extension Packs"
 	],
-	"publisher" : "motionland",
+	"keywords": [
+		"ExtendScript",
+		"JSXBIN",
+		"JSX",
+		"After Effects"
+	],
+	"publisher": "motionland",
 	"version": "0.0.2",
-	"author" : {
-		"name" : "Alex White"
+	"author": {
+		"name": "Alex White"
 	},
 	"engines": {
 		"vscode": "^1.34.0"
@@ -49,9 +56,14 @@
 		"vscode": "^1.1.28"
 	},
 	"repository": {
-    "type": "git",
-    "url": "https://github.com/axwt/texttojsxbin"
-  },
-  "homepage": "https://github.com/axwt/texttojsxbin/blob/master/README.md",
-	"icon": "images/icon.png"
+		"type": "git",
+		"url": "https://github.com/axwt/texttojsxbin"
+	},
+	"homepage": "https://github.com/axwt/texttojsxbin/blob/master/README.md",
+	"icon": "images/icon.png",
+	"__metadata": {
+		"id": "52451e2d-8a1f-475e-9f8c-fecdb19793f8",
+		"publisherDisplayName": "Motion Land",
+		"publisherId": "1c6f0f4d-3430-44b0-933a-dcc5e7473e98"
+	}
 }

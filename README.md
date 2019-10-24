@@ -3,7 +3,7 @@
 # TextToJSXBIN
 
 Convert JSX code to JSXBIN and put in the eval.
-Requires [ExetndScript Debugger](https://marketplace.visualstudio.com/items?itemName=Adobe.extendscript-debug) to run.
+Requires [ExtendScript Debugger](https://marketplace.visualstudio.com/items?itemName=Adobe.extendscript-debug) to run.
 
 ![TextToJSXBIN](/images/demo.gif)
 
