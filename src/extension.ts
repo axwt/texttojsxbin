@@ -10,8 +10,6 @@ function GetESDInterface() {
 	const extensionPath = vscode.extensions.getExtension("adobe.extendscript-debug");
 	var ESdebugExtensionPath = extensionPath!.extensionPath;
 
-	// require doesn't work
-
 	if (platform === "darwin") {
 		esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/mac/esdcorelibinterface.node");
 	} else if (platform === "win32") {
@@ -19,8 +17,7 @@ function GetESDInterface() {
 			esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/win/x64/esdcorelibinterface.node");
 		} else {
 			esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/win/win32/esdcorelibinterface.node");
-		}
-		
+		}		
 		if (esdinterface === undefined) {
 			console.log("Platform not supported: " + platform);
 			process.exit(1);
@@ -96,9 +93,6 @@ export function activate(context: vscode.ExtensionContext) {
 			let document = editor.document;
 			let selection = editor.selection;
 
-
-			
-			// Get the word within the selection
 			let textToEncode = document.getText(selection);
 			let encodedText = "";
 			let textToReplace = "";
@@ -116,9 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 					return false;
 				}
 
-				textToReplace = textToEncode.replace(/^/gm,"// ") + "\n\neval(\"" + encodedText + "\");";
-				// Display a message box to the user
-				// vscode.window.showInformationMessage("Converted to JSXBIN");
+				textToReplace = textToEncode.replace(/^/gm,"// ") + "\n\neval(\"" + encodedText.replace("@2.0@","@2.1@").replace(/\n/g, "") + "\");";
 			} catch(error) {
 				console.log(error);
 				destroy();
@@ -128,8 +120,6 @@ export function activate(context: vscode.ExtensionContext) {
 			editor.edit(editBuilder => {
 				editBuilder.replace(selection, textToReplace);
 			});
-
-			// console.log("Replaced\n\n");
 
 			destroy();
 
