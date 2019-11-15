@@ -110,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 					return false;
 				}
 
-				textToReplace = textToEncode.replace(/^/gm,"// ") + "\n\neval(\"" + encodedText.replace("@2.0@","@2.1@").replace(/\n/g, "") + "\");";
+				textToReplace = textToEncode.replace(/\n/gm,"\n// ") + "\n\neval(\"" + encodedText.replace("@2.0@","@2.1@").replace(/\n/g, "") + "\");";
 			} catch(error) {
 				console.log(error);
 				destroy();
