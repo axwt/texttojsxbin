@@ -71,6 +71,30 @@ function exportContentToJSX(scriptSource: any) {
 
 }
 
+function buildReplacementText(textToEncode: String, encodedText: String) {
+	const config = vscode.workspace.getConfiguration('extension');
+
+	let commentedText = '/*\n' + textToEncode + '\n*/';
+	if (config.useLineComment) {
+		commentedText = '// ' + textToEncode.replace(/\n/gm, '\n// ');
+	}
+
+	let quotes = "'";
+	if (config.useDoubleQuotes) {
+		quotes = '"';
+	}
+
+	let evalString = encodedText.replace('@2.0@', '@2.1@').replace(/\n/g, '');
+	evalString = 'eval(' + quotes + evalString + quotes + ');';
+
+	let textToReplace = evalString + '\n\n' + commentedText;
+	if (config.evalPlacementBottom) {
+		textToReplace = commentedText + '\n\n' + evalString;
+	}
+
+	return textToReplace;
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -110,7 +134,8 @@ export function activate(context: vscode.ExtensionContext) {
 					return false;
 				}
 
-				textToReplace = textToEncode.replace(/\n/gm,"\n// ") + "\n\neval(\"" + encodedText.replace("@2.0@","@2.1@").replace(/\n/g, "") + "\");";
+				textToReplace = buildReplacementText(textToEncode, encodedText);
+
 			} catch(error) {
 				console.log(error);
 				destroy();

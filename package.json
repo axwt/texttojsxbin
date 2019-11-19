@@ -39,7 +39,30 @@
 					"group": "YourGroup@1"
 				}
 			]
-		}
+		},
+		"configuration": [
+			{
+				"type": "object",
+				"title": "Text to JSXBIN configuration",
+				"properties": {
+					"extension.evalPlacementBottom": {
+						"type": "boolean",
+						"default": true,
+						"description": "Whether to place `eval` method at the top or bottom of encoded text."
+					},
+					"extension.useDoubleQuotes": {
+						"type": "boolean",
+						"default": true,
+						"description": "Whether to use double or single quotes in `eval` method."
+					},
+					"extension.useLineComment": {
+						"type": "boolean",
+						"default": true,
+						"description": "Whether to use inline or block comment to comment-out source code."
+					}
+				}
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
