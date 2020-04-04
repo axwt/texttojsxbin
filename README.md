@@ -5,6 +5,10 @@
 Convert JSX code to JSXBIN and put in the eval.
 Requires [ExtendScript Debugger](https://marketplace.visualstudio.com/items?itemName=Adobe.extendscript-debug) to run.
 
+If you need a package for Atom, check out [JSXBIN](https://github.com/alexmunteanu/jsxbin-encoder) encoder by [alexmunteanu](https://github.com/alexmunteanu)
+
+
+
 ![TextToJSXBIN](/images/demo.gif)
 
 
@@ -34,6 +38,7 @@ The following steps are good standard troubleshooting.
 - Close Visual Studio Code
 - Make sure there are no VS "Code Helper" processes in the Activity Monitor (Mac) or Task Manager (Windows)
 - Restart Visual Studio Code
+
 
 ## Known issues
 
