@@ -3,72 +3,114 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-function GetESDInterface() {
+interface ESDInterface {
+	init(): void;
+	destroy(): void;
+	exportContentToJSX(scriptSource: string): string;
+}
+
+function getESDInterface(): ESDInterface | null {
+	const extensionPath = vscode.extensions.getExtension("adobe.extendscript-debug");
+	const ESdebugExtensionPath = extensionPath!.extensionPath;
+	const ESdebugExtensionVersion = extensionPath!.packageJSON.version;
+	const version = ESdebugExtensionVersion.match(/(\d+)\.(\d+)\.(\d+)/);
+	const majorVersion = parseInt(version[1], 10);
+	switch(majorVersion) {
+		case 1:
+			return getESDInterfaceV1(ESdebugExtensionPath);
+		default:
+			return getESDInterfaceV2(ESdebugExtensionPath);
+	}
+}
+
+function getESDInterfaceV1(extensionPath: string): ESDInterface | null {
 	const platform = `${process.platform}`;
 	const platformArch = `${process.arch}`;
-	var esdinterface = undefined;
-	const extensionPath = vscode.extensions.getExtension("adobe.extendscript-debug");
-	var ESdebugExtensionPath = extensionPath!.extensionPath;
-
+	let coreLib: any = undefined;
 	if (platform === "darwin") {
-		esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/mac/esdcorelibinterface.node");
+		coreLib = require(extensionPath + "/node_modules/@esdebug/esdebugger-core/mac/esdcorelibinterface.node");
 	} else if (platform === "win32") {
 		if (platformArch === "x64" || platformArch === "arm64") {
-			esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/win/x64/esdcorelibinterface.node");
+			coreLib = require(extensionPath + "/node_modules/@esdebug/esdebugger-core/win/x64/esdcorelibinterface.node");
 		} else {
-			esdinterface = require(ESdebugExtensionPath + "/node_modules/@esdebug/esdebugger-core/win/win32/esdcorelibinterface.node");
+			coreLib = require(extensionPath + "/node_modules/@esdebug/esdebugger-core/win/win32/esdcorelibinterface.node");
 		}		
-		if (esdinterface === undefined) {
+		if (coreLib === undefined) {
 			console.log("Platform not supported: " + platform);
-			process.exit(1);
+			return null;
 		}
 	}
-	
+
+	const esdinterface = {
+		init() {
+			const initData = coreLib.esdInit();
+			if (initData.status !== 0) {
+				console.log("Unable to proceed. Error Code: " + initData.status);
+			}
+		},
+		destroy() {
+			coreLib.esdDestroy();
+		},
+		exportContentToJSX(scriptSource: string) {
+			let compiledSource = "";
+
+			const apiData = coreLib.esdCompileToJSXBin(scriptSource, "", "");
+			if (apiData.status !== 0) {
+				console.log("Unable to proceed. Error Code: " + apiData.status);
+			} else {
+				compiledSource = apiData.data;
+			}
+
+			return compiledSource;
+		}
+	};
+
 	return esdinterface;
-
 }
 
-function fetchLastErrorAndExit() {
-    var errorInfo = undefined;
-    var error = GetESDInterface().esdGetLastError();
-    if(error.status !== 0){
-        if(error.data) {
-            errorInfo = error.data;
-        }
-    }
-    if(errorInfo !== undefined) {
-        console.log("Unable to proceed. Error Info: " + errorInfo);
-    }
-    process.exit(1);
-}
-
-function init() {
-		var initData = GetESDInterface().esdInit();
-
-    if(initData.status !== 0) {
-        console.log("Unable to proceed. Error Code: " + initData.status);
-        fetchLastErrorAndExit();
+function getESDInterfaceV2(extensionPath: string): ESDInterface | null{
+	const platform = `${process.platform}`;
+	const platformArch = `${process.arch}`;
+	let coreLib: any = undefined;
+	if (platform === "darwin") {
+		coreLib = require(extensionPath + "/lib/esdebugger-core/mac/esdcorelibinterface.node");
+	} else if (platform === "win32") {
+		if (platformArch === "x64" || platformArch === "arm64") {
+			coreLib = require(extensionPath + "/lib/esdebugger-core/win/x64/esdcorelibinterface.node");
+		} else {
+			coreLib = require(extensionPath + "/lib/esdebugger-core/win/win32/esdcorelibinterface.node");
+		}		
+		if (coreLib === undefined) {
+			console.log("Platform not supported: " + platform);
+			return null;
 		}
-		
-}
-function destroy() {
-    GetESDInterface().esdDestroy();
-}
-
-function exportContentToJSX(scriptSource: any) {
-
-	var compiledSource = "";
-
-	var apiData = GetESDInterface().esdCompileToJSXBin(scriptSource, "", "");
-	if(apiData.status !== 0){
-			console.log("Unable to proceed. Error Code: " + apiData.status);
-			fetchLastErrorAndExit();
-	} else {
-			compiledSource = apiData.data;
 	}
 
-	return compiledSource;
+	const esdinterface = {
+		init() {
+			const result = coreLib.esdInitialize('vscesd', process.pid);
+			if (result.status !== 0 && result.status !== 11) {
+				console.log("Unable to proceed. Error Code: " + result.status);
+			}
+		},
+		destroy() {
+			coreLib.esdCleanup();
+		},
+		exportContentToJSX(scriptSource: string) {
+			let compiledSource = "";
 
+			const apiData = coreLib.esdCompileToJSXBin(scriptSource, "", "");
+			if (apiData.status !== 0) {
+				console.log("Unable to proceed. Error Code: " + apiData.status);
+			} else {
+				compiledSource = apiData.output;
+			}
+
+			return compiledSource;
+		}
+	};
+
+	return esdinterface;
 }
 
 function buildReplacementText(textToEncode: String, encodedText: String) {
@@ -120,33 +162,38 @@ export function activate(context: vscode.ExtensionContext) {
 			let textToEncode = document.getText(selection);
 			let encodedText = "";
 			let textToReplace = "";
+
+			const esdinterface = getESDInterface();
+			if (!esdinterface) {
+				vscode.window.showInformationMessage("Unable to load Core Lib.");
+				return;
+			}
 			
-			init();
+			esdinterface.init();
 			
 			try {
-				encodedText = exportContentToJSX(textToEncode);
+				encodedText = esdinterface.exportContentToJSX(textToEncode);
 
 				if (encodedText === "") {
 					// Display a message box to the user
 					vscode.window.showInformationMessage("There was an issue encoding the selection. Please, check your code.");
-					destroy();
-					process.exit(1);
-					return false;
+					esdinterface.destroy();
+					return;
 				}
 
 				textToReplace = buildReplacementText(textToEncode, encodedText);
 
 			} catch(error) {
 				console.log(error);
-				destroy();
-				process.exit(1);
+				esdinterface.destroy();
+				return;
 			}
 
 			editor.edit(editBuilder => {
 				editBuilder.replace(selection, textToReplace);
 			});
 
-			destroy();
+			esdinterface.destroy();
 
 		}
 
