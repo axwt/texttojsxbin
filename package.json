@@ -14,7 +14,7 @@
 		"After Effects"
 	],
 	"publisher": "motionland",
-	"version": "0.0.5",
+	"version": "0.1.0",
 	"author": {
 		"name": "Alex White"
 	},
@@ -75,7 +75,7 @@
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^10.12.21",
 		"tslint": "^5.20.0",
-		"typescript": "^3.3.1",
+		"typescript": "^3.9.10",
 		"vscode": "^1.1.37"
 	},
 	"repository": {
